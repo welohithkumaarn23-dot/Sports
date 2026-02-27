@@ -7,6 +7,12 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
+// Serve static files from public directory
+app.use(express.static("public"));
+// Root route for health check or homepage
+app.get("/", (req, res) => {
+    res.send("API is running!");
+});
 
 // PostgreSQL Connection Pool using DATABASE_URL
 const pool = new Pool({
