@@ -17,7 +17,7 @@ app.get("/", (req, res) => {
 
 // MongoDB Connection
 const mongoUri = process.env.MONGODB_URI || "mongodb://localhost:27017";
-const client = new MongoClient(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true });
+const client = new MongoClient(mongoUri);
 let db;
 
 client.connect()
