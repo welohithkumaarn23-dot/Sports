@@ -1,5 +1,5 @@
 const express = require("express");
-const { Pool } = require("pg");
+const { MongoClient, ObjectId } = require("mongodb");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
 
@@ -14,12 +14,20 @@ app.get("/", (req, res) => {
     res.send("API is running!");
 });
 
-// PostgreSQL Connection Pool using DATABASE_URL
-const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    max: 10,
-    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
-});
+
+// MongoDB Connection
+const mongoUri = process.env.MONGODB_URI || "mongodb://localhost:27017";
+const client = new MongoClient(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true });
+let db;
+
+client.connect()
+    .then(() => {
+        db = client.db(process.env.DB_NAME || "sports_academy");
+        console.log("Connected to MongoDB");
+    })
+    .catch(err => {
+        console.error("MongoDB connection error:", err);
+    });
 
 // ================= SIGNUP =================
 app.post("/signup", async (req, res) => {
@@ -31,8 +39,8 @@ app.post("/signup", async (req, res) => {
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        const sql = "INSERT INTO users (name, email, password) VALUES ($1, $2, $3)";
-        await pool.query(sql, [name, email, hashedPassword]);
+        const user = { name, email, password: hashedPassword };
+        await db.collection("users").insertOne(user);
         res.json({ message: "User registered successfully" });
     } catch (error) {
         console.error("Signup error:", error);
@@ -44,19 +52,14 @@ app.post("/signup", async (req, res) => {
 app.post("/login", async (req, res) => {
     try {
         const { email, password } = req.body;
-        const sql = "SELECT * FROM users WHERE email = $1";
-        const result = await pool.query(sql, [email]);
-        if (result.rows.length === 0) {
+        const user = await db.collection("users").findOne({ email });
+        if (!user) {
             return res.status(401).json({ error: "User not found" });
         }
-
-        const user = result.rows[0];
         const isMatch = await bcrypt.compare(password, user.password);
-
         if (!isMatch) {
             return res.status(401).json({ error: "Invalid password" });
         }
-
         delete user.password;
         res.json(user);
     } catch (error) {
@@ -81,13 +84,7 @@ app.post("/book-slot", async (req, res) => {
             status
         } = req.body;
 
-        const sql = `
-            INSERT INTO bookings 
-            (user_id, sport_name, booking_date, start_time, end_time, 
-             total_amount, paid_amount, mobile, transaction_id, status)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-        `;
-        await pool.query(sql, [
+        const booking = {
             user_id,
             sport_name,
             booking_date,
@@ -98,7 +95,8 @@ app.post("/book-slot", async (req, res) => {
             mobile,
             transaction_id,
             status
-        ]);
+        };
+        await db.collection("bookings").insertOne(booking);
 
         res.json({ message: "Booking saved successfully" });
     } catch (error) {
@@ -111,9 +109,8 @@ app.post("/book-slot", async (req, res) => {
 app.get("/user-bookings/:userId", async (req, res) => {
     try {
         const userId = req.params.userId;
-        const sql = "SELECT * FROM bookings WHERE user_id = $1 ORDER BY id DESC";
-        const result = await pool.query(sql, [userId]);
-        res.json(result.rows);
+        const bookings = await db.collection("bookings").find({ user_id: userId }).toArray();
+        res.json(bookings);
     } catch (error) {
         console.error("Error fetching bookings:", error);
         res.status(500).json({ error: "DB error" });
@@ -124,8 +121,8 @@ app.get("/user-bookings/:userId", async (req, res) => {
 app.post("/add-sport", async (req, res) => {
     try {
         const { name, image_url, description } = req.body;
-        const sql = "INSERT INTO sports (name, image_url, description) VALUES ($1, $2, $3)";
-        await pool.query(sql, [name, image_url, description]);
+        const sport = { name, image_url, description };
+        await db.collection("sports").insertOne(sport);
         res.json({ message: "Sport added successfully" });
     } catch (error) {
         console.error("Error adding sport:", error);
@@ -135,9 +132,8 @@ app.post("/add-sport", async (req, res) => {
 
 app.get("/sports", async (req, res) => {
     try {
-        const sql = "SELECT * FROM sports ORDER BY id DESC";
-        const result = await pool.query(sql);
-        res.json(result.rows);
+        const sports = await db.collection("sports").find({}).toArray();
+        res.json(sports);
     } catch (error) {
         console.error("Error fetching sports:", error);
         res.status(500).json({ error: "DB error" });
@@ -148,8 +144,10 @@ app.put("/update-sport/:id", async (req, res) => {
     try {
         const { id } = req.params;
         const { name, description, image_url } = req.body;
-        const sql = "UPDATE sports SET name = $1, description = $2, image_url = $3 WHERE id = $4";
-        await pool.query(sql, [name, description, image_url, id]);
+        await db.collection("sports").updateOne(
+            { _id: new ObjectId(id) },
+            { $set: { name, description, image_url } }
+        );
         res.json({ message: "Sport updated successfully" });
     } catch (error) {
         console.error("Error updating sport:", error);
@@ -160,9 +158,7 @@ app.put("/update-sport/:id", async (req, res) => {
 app.delete("/delete-sport/:id", async (req, res) => {
     try {
         const { id } = req.params;
-        const sql = "DELETE FROM sports WHERE id = ?";
-
-        await db.query(sql, [id]);
+        await db.collection("sports").deleteOne({ _id: new ObjectId(id) });
         res.json({ message: "Sport deleted successfully" });
     } catch (error) {
         console.error("Error deleting sport:", error);
@@ -189,24 +185,18 @@ app.post("/add-tournament", async (req, res) => {
             return res.status(400).json({ error: "Missing required fields: name, sport_name, start_date, end_date" });
         }
 
-        const sql = `
-            INSERT INTO tournaments 
-            (name, sport_name, start_date, end_date, location, registration_deadline, image_url, description)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        `;
-
-        const [result] = await db.query(sql, [
+        const tournament = {
             name,
             sport_name,
             start_date,
             end_date,
-            location || '',
-            registration_deadline || '',
-            image_url || '',
-            description || ''
-        ]);
-
-        res.json({ message: "Tournament added successfully", id: result.insertId });
+            location: location || '',
+            registration_deadline: registration_deadline || '',
+            image_url: image_url || '',
+            description: description || ''
+        };
+        const result = await db.collection("tournaments").insertOne(tournament);
+        res.json({ message: "Tournament added successfully", id: result.insertedId });
     } catch (error) {
         console.error("Error adding tournament:", error);
         res.status(500).json({ error: "Failed to add tournament: " + error.message });
@@ -215,8 +205,8 @@ app.post("/add-tournament", async (req, res) => {
 
 app.get("/tournaments", async (req, res) => {
     try {
-        const [result] = await db.query("SELECT * FROM tournaments ORDER BY id DESC");
-        res.json(result);
+        const tournaments = await db.collection("tournaments").find({}).sort({ _id: -1 }).toArray();
+        res.json(tournaments);
     } catch (error) {
         console.error("Error fetching tournaments:", error);
         res.status(500).json({ error: "DB error" });
@@ -227,12 +217,10 @@ app.put("/update-tournament/:id", async (req, res) => {
     try {
         const { id } = req.params;
         const { name, sport_name, start_date, end_date, location, registration_deadline, description, image_url } = req.body;
-
-        const sql = `UPDATE tournaments SET name = ?, sport_name = ?, start_date = ?, end_date = ?, 
-                     location = ?, registration_deadline = ?, description = ?, image_url = ? WHERE id = ?`;
-
-        await db.query(sql, [name, sport_name, start_date, end_date, location, registration_deadline, description, image_url, id]);
-
+        await db.collection("tournaments").updateOne(
+            { _id: new ObjectId(id) },
+            { $set: { name, sport_name, start_date, end_date, location, registration_deadline, description, image_url } }
+        );
         res.json({ message: "Tournament updated successfully" });
     } catch (error) {
         console.error("Error updating tournament:", error);
@@ -243,10 +231,7 @@ app.put("/update-tournament/:id", async (req, res) => {
 app.delete("/delete-tournament/:id", async (req, res) => {
     try {
         const { id } = req.params;
-        const sql = "DELETE FROM tournaments WHERE id = ?";
-
-        await db.query(sql, [id]);
-
+        await db.collection("tournaments").deleteOne({ _id: new ObjectId(id) });
         res.json({ message: "Tournament deleted successfully" });
     } catch (error) {
         console.error("Error deleting tournament:", error);
