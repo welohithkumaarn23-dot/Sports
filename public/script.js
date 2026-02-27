@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:3000/api';
+const API_URL = 'https://sports-h2c7.onrender.com';
 
 /* =======================
    MOCK DATA
@@ -127,7 +127,7 @@ function generateSlotsForSport(sportId, basePrice = 300) {
 
 async function fetchTournaments() {
     try {
-        const response = await fetch('http://localhost:5000/tournaments');
+        const response = await fetch(API_URL + '/tournaments');
         if (response.ok) {
             const data = await response.json();
             return data;
@@ -143,7 +143,7 @@ async function fetchTournaments() {
 
 async function fetchSports() {
     try {
-        const response = await fetch('http://localhost:5000/sports');
+        const response = await fetch(API_URL + '/sports');
         if (response.ok) {
             const data = await response.json();
             return data;
@@ -164,7 +164,7 @@ async function fetchTournamentSlots(tournamentId) {
 
 async function registerTournamentParticipant(payload) {
     try {
-        const response = await fetch('http://localhost:5000/register-tournament', {
+        const response = await fetch(API_URL + '/register-tournament', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
