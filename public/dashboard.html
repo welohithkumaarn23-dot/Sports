@@ -1,0 +1,871 @@
+<!DOCTYPE html> 
+<html lang="en"> 
+<head> 
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>Sports Academy - Dashboard</title> 
+    <link rel="stylesheet" href="style.css"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> 
+</head> 
+<body style="background: linear-gradient(135deg, #e9e6f7 0%, #f7e6e6 100%); color: #222; font-family: 'Segoe UI', 'Roboto', Arial, sans-serif; margin: 0;">
+    <header style="background: #181c24; color: #fff; padding: 1.5rem 2rem 1rem 2rem; border-radius: 0 0 2rem 2rem; display: flex; align-items: center; justify-content: space-between;">
+        <h1 style="font-size: 2rem; font-weight: 700; letter-spacing: 1px; margin: 0; display: flex; align-items: center; gap: 0.7rem;"><i class="fas fa-running"></i> Sports Academy</h1>
+        <div class="header-controls" style="display: flex; gap: 1.2rem; align-items: center;">
+            <span id="user-name" class="user-info"></span>
+            <button id="logout-btn" onclick="logout()" class="danger"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            <button class="nav-toggle" aria-label="Toggle navigation"><i class="fas fa-bars"></i></button>
+        </div>
+    </header> 
+    <nav class="nav-bar">
+        <div class="nav-inner">
+            <a class="nav-link" href="index.html">Home</a>
+            <a class="nav-link" href="turfs.html">Explore</a>
+            <a class="nav-link" href="tournaments.html">Tournaments</a>
+            <a class="nav-link" href="contact.html">Contact</a>
+            <a class="nav-link active" href="dashboard.html">Dashboard</a>
+        </div>
+    </nav>
+    <div class="container" style="animation: dashboardPop 1.2s cubic-bezier(.77,0,.18,1) both;">
+        <h2 class="section-title">Available Sports</h2> 
+        <div id="sports-grid" class="grid"> 
+            <!-- Sports will be loaded here --> 
+        </div> 
+ 
+        <div id="booking-section" class="card hidden mt-2"> 
+            <h3 id="selected-sport-name" style="margin-top: 0; color: var(--primary-color);">Select Slots</h3> 
+            <div class="form-group"> 
+                <label><i class="far fa-calendar-alt"></i> Select Date:</label> 
+                <input type="date" id="booking-date" style="max-width: 300px;"> 
+            </div> 
+            <div id="view-only-banner" class="badge badge-pending hidden" style="margin-bottom:8px;">Viewing slots only. To book, add to cart or open from Dashboard.</div>
+            <div id="slots-grid" class="slot-grid"> 
+                <!-- Slots will be loaded here --> 
+            </div> 
+            <div id="cart-section" class="card hidden" style="margin-top:10px;">
+                <h3 style="margin-top:0; color: var(--secondary-color);">Selected Slots</h3>
+                <div id="cart-items"></div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+                    <span style="font-weight:600;">Total</span>
+                    <span>₹<span id="cart-total">0</span></span>
+                </div>
+                <div style="display:flex; gap:10px; margin-top:10px;">
+                    <button id="clear-cart" class="secondary">Clear</button>
+                    <button id="proceed-cart" style="flex:1;">Proceed to Payment</button>
+                </div>
+            </div>
+        </div> 
+ 
+        <h2 class="section-title mt-2">Your Bookings</h2> 
+        <div class="form-group" style="display:flex; gap:1rem; align-items:center;">
+            <label for="cust-month-filter"><i class="far fa-calendar"></i> Filter by Month</label>
+            <input type="month" id="cust-month-filter" style="max-width:200px;">
+        </div>
+        <div id="bookings-list" class="grid"> 
+            <!-- User bookings will be loaded here --> 
+        </div> 
+    </div> 
+ 
+    <!-- Payment Modal --> 
+    <div id="payment-modal" class="modal-overlay hidden"> 
+        <div class="modal-content card" style="max-width: 500px;"> 
+            <h2 style="text-align: center; color: var(--primary-color);">Payment Gateway</h2> 
+            <div class="payment-form"> 
+                 <div id="guest-details"> 
+                    <div class="form-group"> 
+                        <label>Name</label> 
+                        <input type="text" id="guest-name" placeholder="Enter your name"> 
+                    </div> 
+                 </div> 
+                 <div class="form-group"> 
+                    <label>Mobile Number</label> 
+                    <input type="tel" id="guest-mobile" placeholder="Enter mobile number" required> 
+                 </div> 
+                 <div class="form-group" style="background:rgba(65, 105, 225, 0.1); padding:0.75rem; border-radius:8px;"> 
+                     <div style="display:flex; justify-content:space-between; font-weight:600;"> 
+                         <span>Total Price</span> 
+                         <span>₹<span id="total-amount">0</span></span> 
+                     </div> 
+                     <small style="display:block; color:var(--text-light); margin-top:6px;"> 
+                         Pay any advance amount up to the total. Balance is auto-calculated. 
+                     </small> 
+                 </div> 
+                <div class="form-group"> 
+                    <label>Card Number</label> 
+                    <input type="text" placeholder="XXXX-XXXX-XXXX-XXXX" maxlength="19"> 
+                </div> 
+                <div class="row" style="display: flex; gap: 10px;"> 
+                    <div class="form-group" style="flex: 1;"> 
+                        <label>Expiry</label> 
+                        <input type="text" placeholder="MM/YY" maxlength="5"> 
+                    </div> 
+                    <div class="form-group" style="flex: 1;"> 
+                        <label>CVV</label> 
+                        <input type="password" placeholder="123" maxlength="3"> 
+                    </div> 
+                </div> 
+                <div class="form-group"> 
+                     <label>Advance Amount to Pay</label> 
+                     <input type="number" id="pay-amount" min="1" step="1" placeholder="Enter advance" style="font-weight: bold;"> 
+                     <small style="color:var(--text-light)">Must be ≤ total price</small> 
+                </div> 
+                <div class="form-group"> 
+                    <label>Email Address</label>
+                    <input type="email" id="customer-email" placeholder="Enter your email" required>
+                    <small style="color:var(--text-light)">Receipt will be sent to this email</small>
+                </div> 
+                <button id="pay-btn" style="width: 100%;">Pay Now</button> 
+                <button class="secondary" style="width: 100%; margin-top: 10px;" onclick="document.getElementById('payment-modal').classList.add('hidden')">Cancel</button> 
+            </div> 
+        </div> 
+    </div> 
+ 
+    <!-- Bill Modal --> 
+    <div id="bill-modal" class="modal-overlay hidden"> 
+        <div class="modal-content card" style="max-width: 520px;"> 
+            <div class="bill-header" style="text-align: center; border-bottom: 2px dashed #ccc; padding-bottom: 1rem; margin-bottom: 1rem;"> 
+                <h2 style="color: var(--secondary-color); margin: 0;"><i class="fas fa-check-circle"></i> Booking Confirmed</h2> 
+                <p style="color: var(--text-light);">Sports Academy Receipt</p> 
+            </div> 
+            <div style="display:flex; justify-content:center; align-items:center;"> 
+                <img id="bill-image" alt="Receipt Image" style="width:100%; border:1px solid #eee; border-radius:8px;" /> 
+            </div> 
+            <div class="bill-footer" style="text-align: center; margin-top: 1.5rem; border-top: 2px dashed #ccc; padding-top: 1rem;"> 
+                 <a id="download-bill" class="secondary cta-btn" style="display:block; width: 100%; margin-bottom:10px; text-decoration:none;" download="receipt.png">Download Receipt Image</a> 
+                 <p style="font-size: 0.9rem; color: var(--text-light);">A receipt will be sent to your email after payment.</p>
+                <button onclick="window.location.reload()" style="width: 100%;">Close</button> 
+            </div> 
+        </div> 
+    </div> 
+ 
+    <style>
+/* Improve visibility for Selected Slots section */
+#cart-section, #cart-section .card, #cart-section .slot-row, #cart-section .slot-card, #cart-section .cart-item, #cart-section .cart-total-row {
+    background: #fff !important;
+    color: #222 !important;
+    border-radius: 1.5rem;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+    font-weight: 500;
+}
+#cart-section h3, #cart-section h4, #cart-section p, #cart-section span, #cart-section label {
+    color: #222 !important;
+}
+#cart-section .cart-total-row, #cart-section .cart-total-row span {
+    color: #181c24 !important;
+    font-weight: 700;
+}
+/* Improve visibility for booking cards and filter controls */
+.booking-card, .grid > .card, .grid .booking-card {
+    background: #fff !important;
+    color: #222 !important;
+    border-radius: 1.5rem;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+    font-weight: 500;
+}
+.booking-card h3, .booking-card h4, .booking-card p, .booking-card span, .booking-card label {
+    color: #222 !important;
+}
+.form-group input[type="month"], .form-group input[type="date"] {
+    background: #fff !important;
+    color: #222 !important;
+    border: 1.5px solid #cbd5e1;
+    font-weight: 600;
+}
+.form-group label {
+    color: #181c24 !important;
+    font-weight: 700;
+}
+@keyframes dashboardPop {
+  0% { opacity: 0; transform: scale(0.92) translateY(60px) skewY(4deg) rotateZ(-2deg); filter: blur(8px); }
+  60% { opacity: 0.7; transform: scale(1.04) translateY(-10px) skewY(-2deg) rotateZ(1deg); filter: blur(2px); }
+  100% { opacity: 1; transform: scale(1) translateY(0) skewY(0) rotateZ(0); filter: blur(0); }
+}
+#bill-modal .modal-content { animation: billPop 1s cubic-bezier(.77,0,.18,1) both; }
+</style>
+ 
+    <script src="script.js"></script> 
+         <!-- EmailJS Initialization -->
+         <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+         <script>
+         (function(){
+            emailjs.init("dTYe8UWVpk_EVZ0B8"); // EmailJS Public Key
+         })();
+         </script>
+    <script> 
+        // Check if user is logged in, but don't redirect if not 
+        const user = JSON.parse(localStorage.getItem('user'));
+        const userNameSpan = document.getElementById('user-name');
+        
+        if (user) {
+            userNameSpan.textContent = `Welcome, ${user.name}`;
+        } else {
+            userNameSpan.textContent = 'Welcome, Guest';
+        }
+        const logoutBtn = document.getElementById('logout-btn');
+        if (!user && logoutBtn) { logoutBtn.style.display = 'none'; }
+
+        let selectedSport = null;
+        let selectedSlot = null;
+        let currentBooking = null; // To store booking details for bill generation
+        let lastReceiptDetails = null;
+        let cart = [];
+        let cartPaymentActive = false;
+        let viewOnly = false;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSports();
+            cleanOldBookings(30);
+            loadUserBookings();
+            
+            // Set date input min to today
+            const dateInput = document.getElementById('booking-date');
+            const today = new Date().toISOString().split('T')[0];
+            dateInput.min = today;
+            dateInput.value = today;
+
+            // Date change listener
+            dateInput.addEventListener('change', () => {
+                if (selectedSport) {
+                    loadSlots(selectedSport.id, dateInput.value);
+                }
+            });
+
+            // Handle URL params (redirect from Turfs page)
+            const urlParams = new URLSearchParams(window.location.search);
+            const sportIdParam = urlParams.get('sportId');
+            const viewOnlyParam = urlParams.get('viewOnly');
+            viewOnly = viewOnlyParam === '1' || viewOnlyParam === 'true';
+            if (sportIdParam) {
+                // We need to wait for sports to load, or just fetch directly
+                // Simple timeout to ensure data is ready or use async init
+                setTimeout(() => {
+                    selectSport(parseInt(sportIdParam));
+                }, 100);
+            }
+            try {
+                const ret = JSON.parse(localStorage.getItem('return_after_login'));
+                if (ret && ret.sportId) {
+                    localStorage.removeItem('return_after_login');
+                    setTimeout(() => {
+                        selectSport(parseInt(ret.sportId));
+                        if (ret.cart && Array.isArray(ret.cart) && ret.cart.length) {
+                            cart = ret.cart;
+                            updateCartUI();
+                            openCartPayment();
+                        } else if (ret.gotoPayment && ret.slot) {
+                            openPaymentModal(ret.slot.id, ret.slot.start, ret.slot.end, ret.slot.price);
+                        }
+                    }, 120);
+                }
+            } catch (e) {}
+            document.getElementById('clear-cart').addEventListener('click', clearCart);
+            document.getElementById('proceed-cart').addEventListener('click', proceedCart);
+        });
+
+        async function fetchSports() {
+            try {
+                const response = await fetch('http://localhost:5000/sports');
+                if (!response.ok) throw new Error('Failed to fetch sports');
+                const sports = await response.json();
+                // Support both admin.html (desc) and old (description) keys
+                return (sports || []).map(s => ({
+                    ...s,
+                    description: s.description || s.desc || '',
+                    image_url: s.image_url || s.image || ''
+                }));
+            } catch (e) {
+                console.error('Error fetching sports:', e);
+                return [];
+            }
+        }
+
+        async function loadSports() {
+            const sports = await fetchSports();
+            const grid = document.getElementById('sports-grid');
+            grid.innerHTML = sports.map(sport => `
+                <div class="card sport-card" onclick="selectSport(${sport.id})" style="cursor:pointer;">
+                    <h3>${sport.name}</h3>
+                    ${sport.description ? `<p style="color: var(--text-light);">${sport.description}</p>` : `<p style="color: var(--text-light);">Click to view slots</p>`}
+                </div>
+            `).join('');
+        }
+
+        async function selectSport(sportId) {
+            const sports = await fetchSports();
+            selectedSport = sports.find(s => s.id === sportId);
+            if (!selectedSport) return;
+            document.getElementById('selected-sport-name').textContent = `Select Slots for ${selectedSport.name}`;
+            document.getElementById('booking-section').classList.remove('hidden');
+            document.getElementById('booking-section').scrollIntoView({ behavior: 'smooth' });
+            const date = document.getElementById('booking-date').value;
+            loadSlots(sportId, date);
+            try {
+                const saved = localStorage.getItem('cart_' + sportId);
+                if (saved) {
+                    cart = JSON.parse(saved) || [];
+                } else {
+                    cart = [];
+                }
+            } catch (e) {
+                cart = [];
+            }
+            updateCartUI();
+        }
+
+        function loadSlots(sportId, date) {
+            const slotsGrid = document.getElementById('slots-grid');
+            let html = '';
+            // Gym membership logic (if needed, can be refactored to backend-driven as well)
+            if (selectedSport && selectedSport.name.toLowerCase() === 'gym') {
+                // Optionally fetch memberships from backend if available
+                html += '<p>Membership plans are not available at this time.</p>';
+                slotsGrid.innerHTML = html;
+                return;
+            }
+            // Fetch slots for this sport from backend
+            fetch('http://localhost:5000/slots?sport_id=' + sportId)
+                .then(res => res.json())
+                .then(async slots => {
+                    // Filter slots by sportId in frontend in case backend returns all
+                    slots = (slots || []).filter(s => parseInt(s.sport_id, 10) === parseInt(sportId, 10));
+                    // Fetch bookings for this sport and date from backend
+                    let existingBookings = [];
+                    try {
+                        const bookingsRes = await fetch(`http://localhost:5000/bookings?sport_id=${sportId}&date=${date}`);
+                        if (bookingsRes.ok) {
+                            existingBookings = await bookingsRes.json();
+                        }
+                    } catch (e) { existingBookings = []; }
+                    if (!slots || slots.length === 0) {
+                        slotsGrid.innerHTML = '<p>No slots available for this sport.</p>';
+                        return;
+                    }
+                    html += slots.map(slot => {
+                        const isBooked = existingBookings.some(b => b.start_time === slot.start_time);
+                        if (isBooked) {
+                            return `
+                                <div class="slot-card" style="background:#ffe5e5;border:1px solid #ff4d4f;color:#b30000;cursor:not-allowed;">
+                                    <div class="slot-time">${formatTime12(slot.start_time)} - ${formatTime12(slot.end_time)}</div>
+                                    <div class="slot-price">Booked</div>
+                                </div>
+                            `;
+                        } else {
+                            const addBtn = (user ? `<button class="secondary" style="margin-top:6px;" onclick="addToCart(${slot.id}, '${slot.start_time}', '${slot.end_time}', ${slot.price}); event.stopPropagation();">Add to Slot</button>` : '');
+                            return `
+                                <div class="slot-card" ${viewOnly ? '' : `onclick=\"openPaymentModal(${slot.id}, '${slot.start_time}', '${slot.end_time}', ${slot.price})\"`} style="${viewOnly ? 'cursor:default' : ''}">
+                                    <div class="slot-time">${formatTime12(slot.start_time)} - ${formatTime12(slot.end_time)}</div>
+                                    <div class="slot-price">₹${slot.price}</div>
+                                    ${addBtn}
+                                </div>
+                            `;
+                        }
+                    }).join('');
+                    slotsGrid.innerHTML = html || '<p>All slots booked for this date.</p>';
+                    const banner = document.getElementById('view-only-banner');
+                    if (banner) {
+                        if (viewOnly) banner.classList.remove('hidden'); else banner.classList.add('hidden');
+                    }
+                })
+                .catch(() => {
+                    slotsGrid.innerHTML = '<p>Error loading slots.</p>';
+                });
+        }
+
+        function openPaymentModal(slotId, start, end, price) {
+            cartPaymentActive = false;
+            if (!user) {
+                try {
+                    localStorage.setItem('return_after_login', JSON.stringify({
+                        path: 'dashboard.html',
+                        sportId: selectedSport ? selectedSport.id : null,
+                        gotoPayment: true,
+                        slot: { id: slotId, start, end, price }
+                    }));
+                } catch (e) {}
+                window.location.href = 'login.html';
+                return;
+            }
+            selectedSlot = { id: slotId, start, end, price };
+            
+            const modal = document.getElementById('payment-modal');
+            const guestDetails = document.getElementById('guest-details');
+            const totalAmountSpan = document.getElementById('total-amount');
+            const payAmountInput = document.getElementById('pay-amount');
+            const waInput = document.getElementById('whatsapp-mobile');
+
+            totalAmountSpan.textContent = price;
+            payAmountInput.max = price;
+            payAmountInput.value = price; // Default to full payment
+            if (waInput && user && user.mobile) {
+                waInput.value = user.mobile;
+            }
+
+            // Always show guestDetails to allow mobile input for all users
+            guestDetails.classList.remove('');
+            // If user is logged in and has a mobile, prefill the input
+            const mobileInput = document.getElementById('guest-mobile');
+            if (mobileInput) {
+                if (user && user.mobile) {
+                    mobileInput.value = user.mobile;
+                } else {
+                    mobileInput.value = '';
+                }
+                mobileInput.removeAttribute('hidden');
+                mobileInput.style.display = '';
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function addToCart(id, start, end, price) {
+            const date = document.getElementById('booking-date').value;
+            if (!selectedSport) return;
+            const exists = cart.some(i => i.id === id && i.date === date);
+            if (exists) return;
+            cart.push({ id, start, end, price, sport_id: selectedSport.id, sport_name: selectedSport.name, date });
+            try { localStorage.setItem('cart_' + selectedSport.id, JSON.stringify(cart)); } catch (e) {}
+            updateCartUI();
+            try {
+                const section = document.getElementById('cart-section');
+                if (section) section.scrollIntoView({ behavior: 'smooth' });
+            } catch (e) {}
+        }
+
+        function removeFromCart(id, date) {
+            cart = cart.filter(i => !(i.id === id && i.date === date));
+            try { localStorage.setItem('cart_' + selectedSport.id, JSON.stringify(cart)); } catch (e) {}
+            updateCartUI();
+        }
+
+        function clearCart() {
+            cart = [];
+            try { localStorage.removeItem('cart_' + (selectedSport ? selectedSport.id : '')); } catch (e) {}
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const section = document.getElementById('cart-section');
+            const list = document.getElementById('cart-items');
+            const totalEl = document.getElementById('cart-total');
+            if (!cart.length) {
+                section.classList.add('hidden');
+                list.innerHTML = '';
+                totalEl.textContent = '0';
+                return;
+            }
+            section.classList.remove('hidden');
+            const itemsHtml = cart.map(i => `
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px dashed #eee;">
+                    <span>${i.date} • ${formatTime12(i.start)} - ${formatTime12(i.end)}</span>
+                    <span style="display:flex; gap:10px; align-items:center;">
+                        <span>₹${i.price}</span>
+                        <button class="danger" onclick="removeFromCart(${i.id}, '${i.date}')">Remove</button>
+                    </span>
+                </div>
+            `).join('');
+            list.innerHTML = itemsHtml;
+            const total = cart.reduce((s,i) => s + Number(i.price||0), 0);
+            totalEl.textContent = String(total);
+        }
+
+        function formatTime12(t) {
+            const [hh, mm] = String(t).split(':').map(x => parseInt(x, 10));
+            const h12 = ((hh % 12) || 12);
+            const ampm = hh < 12 ? 'AM' : 'PM';
+            return `${String(h12)}:${String(mm).padStart(2,'0')} ${ampm}`;
+        }
+
+        function openCartPayment() {
+            cartPaymentActive = true;
+            if (!cart.length) return;
+            const modal = document.getElementById('payment-modal');
+            const guestDetails = document.getElementById('guest-details');
+            const totalAmountSpan = document.getElementById('total-amount');
+            const payAmountInput = document.getElementById('pay-amount');
+            const total = cart.reduce((s,i) => s + Number(i.price||0), 0);
+            selectedSlot = null;
+            totalAmountSpan.textContent = String(total);
+            payAmountInput.max = String(total);
+            payAmountInput.value = String(total);
+            if (user) {
+                guestDetails.classList.add('hidden');
+            } else {
+                guestDetails.classList.remove('hidden');
+            }
+            modal.classList.remove('hidden');
+        }
+
+        function proceedCart() {
+            if (!cart.length) return;
+            if (!user) {
+                try {
+                    localStorage.setItem('return_after_login', JSON.stringify({
+                        path: 'dashboard.html',
+                        sportId: selectedSport ? selectedSport.id : null,
+                        gotoPayment: true,
+                        cart
+                    }));
+                } catch (e) {}
+                window.location.href = 'login.html';
+                return;
+            }
+            openCartPayment();
+        }
+
+        async function processPayment() {
+            const customerEmail = document.getElementById("customer-email").value;
+            const payAmount = parseFloat(document.getElementById("pay-amount").value);
+            const totalAmount = parseFloat(document.getElementById("total-amount").textContent);
+            // Get mobile number from visible input
+            const mobileInput = document.getElementById("guest-mobile");
+            let mobile = mobileInput ? mobileInput.value.trim() : "";
+
+            if (!customerEmail || !payAmount || !mobile) {
+                alert("Please fill all details, including mobile number");
+                return;
+            }
+            // Simple email validation
+            if (!/^\S+@\S+\.\S+$/.test(customerEmail)) {
+                alert("Please enter a valid email address");
+                return;
+            }
+            // Mobile number validation (must be 10 digits)
+            if (!/^\d{10}$/.test(mobile)) {
+                alert("Please enter a valid 10-digit mobile number");
+                if (mobileInput) mobileInput.focus();
+                return;
+            }
+            // Mobile validation will be added in next step
+
+            if (isNaN(payAmount) || payAmount <= 0) {
+                alert("Please enter a valid amount");
+                return;
+            }
+
+            if (!user) {
+                alert("Please login to proceed");
+                return;
+            }
+
+            const payBtn = document.getElementById('pay-btn');
+            payBtn.textContent = "Processing...";
+            payBtn.disabled = true;
+
+            try {
+                const date = document.getElementById('booking-date').value;
+                // Helper to send email receipt
+                async function sendEmailReceipt(bookingData) {
+                    try {
+                        await emailjs.send(
+                            "service_abu7s08", // EmailJS Service ID
+                            "template_tkfxqw4", // EmailJS Template ID
+                            {
+                                to_name: bookingData.user_name,
+                                email: customerEmail,
+                                sport_name: bookingData.sport_name,
+                                booking_date: bookingData.booking_date,
+                                slot_time: `${formatTime12(bookingData.start_time)} - ${formatTime12(bookingData.end_time)}`,
+                                transaction_id: bookingData.transaction_id,
+                                total_price: bookingData.price,
+                                advance_paid: bookingData.paid_amount,
+                                balance_due: (bookingData.price - bookingData.paid_amount)
+                            }
+                        );
+                    } catch (e) {
+                        alert("Failed to send email receipt. Please check your email address.");
+                    }
+                }
+
+                if (cartPaymentActive && cart.length > 0) {
+                    for (const item of cart) {
+                        const response = await fetch("http://localhost:5000/book-slot", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({
+                                user_id: user.id,
+                                sport_name: item.sport_name,
+                                booking_date: item.date,
+                                start_time: item.start,
+                                end_time: item.end,
+                                total_amount: item.price,
+                                paid_amount: payAmount,
+                                email: customerEmail,
+                                mobile: mobile,
+                                transaction_id: `TXN_${Date.now()}`,
+                                status: "Confirmed"
+                            })
+                        });
+                        if (!response.ok) {
+                            throw new Error(`Failed to book ${item.sport_name}`);
+                        }
+                        const bookingData = {
+                            sport_name: item.sport_name,
+                            booking_date: item.date,
+                            start_time: item.start,
+                            end_time: item.end,
+                            price: item.price,
+                            paid_amount: payAmount,
+                            user_name: user.name,
+                            transaction_id: `TXN_${Date.now()}`
+                        };
+                        bookingData.id = bookingData.transaction_id;
+                        generateBill(bookingData);
+                        await sendEmailReceipt(bookingData);
+                    }
+                    alert("Payment Successful ✅ All bookings confirmed! Receipt sent to your email.");
+                    clearCart();
+                    cartPaymentActive = false;
+                } else if (selectedSlot && selectedSport) {
+                    const transactionId = `TXN_${Date.now()}`;
+                    const response = await fetch("http://localhost:5000/book-slot", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            user_id: user.id,
+                            sport_name: selectedSport.name,
+                            booking_date: date,
+                            start_time: selectedSlot.start,
+                            end_time: selectedSlot.end,
+                            total_amount: totalAmount,
+                            paid_amount: payAmount,
+                            email: customerEmail,
+                            mobile: mobile,
+                            transaction_id: transactionId,
+                            status: "Confirmed"
+                        })
+                    });
+                    if (!response.ok) {
+                        throw new Error("Booking failed");
+                    }
+                    const bookingData = {
+                        sport_name: selectedSport.name,
+                        booking_date: date,
+                        start_time: selectedSlot.start,
+                        end_time: selectedSlot.end,
+                        price: totalAmount,
+                        paid_amount: payAmount,
+                        user_name: user.name,
+                        transaction_id: transactionId
+                    };
+                    bookingData.id = bookingData.transaction_id;
+                    generateBill(bookingData);
+                    await sendEmailReceipt(bookingData);
+                } else {
+                    alert("Please select a slot and sport");
+                    payBtn.textContent = "Pay Now";
+                    payBtn.disabled = false;
+                    return;
+                }
+                document.getElementById('payment-modal').classList.add('hidden');
+                payBtn.textContent = "Pay Now";
+                payBtn.disabled = false;
+                loadUserBookings();
+            } catch (error) {
+                console.error("Payment error:", error);
+                alert("Payment failed: " + error.message);
+                payBtn.textContent = "Pay Now";
+                payBtn.disabled = false;
+            }
+        }
+
+        // Attach event listener to Pay button
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('pay-btn').addEventListener('click', processPayment);
+        });
+
+        function generateBill(booking) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 600;
+            canvas.height = 400;
+            const ctx = canvas.getContext('2d');
+
+            // Background
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, 600, 400);
+            
+            // Border
+            ctx.strokeStyle = "#4169E1";
+            ctx.lineWidth = 10;
+            ctx.strokeRect(0, 0, 600, 400);
+
+            // Header
+            ctx.fillStyle = "#4169E1";
+            ctx.font = "bold 30px Arial";
+            ctx.textAlign = "center";
+            ctx.fillText("SPORTS ACADEMY", 300, 50);
+            
+            ctx.fillStyle = "#333";
+            ctx.font = "20px Arial";
+            ctx.fillText("Booking Receipt", 300, 80);
+
+            // Content
+            ctx.textAlign = "left";
+            ctx.font = "18px Arial";
+            const startX = 50;
+            let startY = 130;
+            const lineHeight = 35;
+
+            ctx.fillText(`Booking ID: ${booking.id}`, startX, startY);
+            startY += lineHeight;
+            ctx.fillText(`Customer: ${booking.user_name}`, startX, startY);
+            startY += lineHeight;
+            ctx.fillText(`Sport: ${booking.sport_name}`, startX, startY);
+            startY += lineHeight;
+            ctx.fillText(`Date: ${booking.booking_date}`, startX, startY);
+            startY += lineHeight;
+            ctx.fillText(`Time: ${formatTime12(booking.start_time)} - ${formatTime12(booking.end_time)}`, startX, startY);
+            startY += lineHeight;
+            ctx.fillText(`Total Amount: ₹${booking.price}`, startX, startY);
+            startY += lineHeight;
+            ctx.fillStyle = "green";
+            ctx.fillText(`Paid Amount: ₹${booking.paid_amount}`, startX, startY);
+
+            // Footer
+            ctx.fillStyle = "#888";
+            ctx.font = "italic 14px Arial";
+            ctx.textAlign = "center";
+            ctx.fillText("Thank you for booking with us!", 300, 370);
+
+            // Convert to Image
+            const dataUrl = canvas.toDataURL("image/png");
+            const billImage = document.getElementById('bill-image');
+            const downloadLink = document.getElementById('download-bill');
+            
+            billImage.src = dataUrl;
+            downloadLink.href = dataUrl;
+            lastReceiptDetails = { booking, image: dataUrl, createdAt: Date.now() };
+            try { localStorage.setItem('lastReceiptDetails', JSON.stringify(lastReceiptDetails)); } catch (e) {}
+            
+            // Show Modal
+            document.getElementById('bill-modal').classList.remove('hidden');
+        }
+
+        async function sendWhatsAppNotification(mobile, booking) {
+            // Validate mobile number
+            if (!mobile || !/^\d{10}$/.test(mobile)) {
+                console.error("Invalid mobile number for WhatsApp");
+                return;
+            }
+
+            const total = booking.price || 0;
+            const paid = booking.paid_amount || 0;
+            const balance = (total - paid);
+            const message =
+`*Sports Academy - Booking Confirmation* ✅
+ -------------------------------- 
+ Customer: ${booking.user_name || 'Guest'}
+ Transaction ID: ${booking.transaction_id || booking.id || 'N/A'}
+ Booking Date: ${booking.booking_date || 'N/A'}
+ Slot Time: ${formatTime12(booking.start_time) || 'N/A'} - ${formatTime12(booking.end_time) || 'N/A'}
+ Total Price: ₹${total}
+ Advance Paid: ₹${paid}
+ Balance Due: ₹${balance.toFixed(2)}
+ -------------------------------- 
+ Thank you for choosing Sports Academy!`;
+            
+            try {
+                // Try to use WhatsApp API if configured
+                const cfg = getMockData().whatsapp || {};
+                if (cfg.api_key && cfg.sender) {
+                    await fetch(`http://localhost:5000/whatsapp/send`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ api_key: cfg.api_key, from: cfg.sender, to: mobile, message })
+                    });
+                } else {
+                    // Fallback to WhatsApp web
+                    const waUrl = `https://wa.me/${mobile}?text=${encodeURIComponent(message)}`;
+                    window.open(waUrl, '_blank');
+                }
+            } catch (e) {
+                console.error("Error sending WhatsApp:", e);
+                // Fallback to WhatsApp web
+                const waUrl = `https://wa.me/${mobile}?text=${encodeURIComponent(message)}`;
+                window.open(waUrl, '_blank');
+            }
+        }
+
+        function resendWhatsApp() {
+            let details = currentBooking ? { booking: currentBooking } : null;
+            if (!details) {
+                try { details = JSON.parse(localStorage.getItem('lastReceiptDetails')); } catch (e) { details = null; }
+            }
+            if (!details || !details.booking) {
+                alert('Receipt details expired. Please re-book.');
+                return;
+            }
+            const booking = details.booking;
+            let mobile = user ? user.mobile : null;
+            if (!mobile || !/^\d{10}$/.test(mobile)) {
+                const guestMobileEl = document.getElementById('guest-mobile');
+                mobile = booking.user_mobile || (guestMobileEl ? guestMobileEl.value : '');
+            }
+            if (!mobile || !/^\d{10}$/.test(mobile)) {
+                alert('Please provide a valid 10-digit mobile number.');
+                return;
+            }
+            sendWhatsAppNotification(mobile, booking);
+        }
+
+        async function loadUserBookings() {
+            if (!user) return;
+
+            const response = await fetch(
+                `http://localhost:5000/user-bookings/${user.id}`
+            );
+
+            const bookings = await response.json();
+            const list = document.getElementById('bookings-list');
+            const monthInput = document.getElementById('cust-month-filter');
+            let filtered = bookings;
+            if (monthInput && monthInput.value) {
+                const [year, month] = monthInput.value.split('-');
+                filtered = bookings.filter(b => {
+                    // Support both ISO and local date strings
+                    const d = new Date(b.booking_date);
+                    return d.getFullYear() == year && (d.getMonth() + 1) == parseInt(month, 10);
+                });
+            }
+            if (!filtered.length) {
+                list.innerHTML = "<p>No bookings for this month.</p>";
+                return;
+            }
+            list.innerHTML = filtered.map(b => `
+                <div class="card">
+                    <h4>${b.sport_name}</h4>
+                    <p>Date: ${b.booking_date}</p>
+                    <p>Time: ${b.start_time} - ${b.end_time}</p>
+                    <p>Paid: ₹${b.paid_amount}</p>
+                </div>
+            `).join('');
+        }
+        function quickRebook(sportName, start, end) {
+            // Fetch sports and slots from backend for rebooking
+            fetch('http://localhost:5000/sports')
+                .then(res => res.json())
+                .then(sports => {
+                    const sport = (sports || []).find(s => s.name === sportName);
+                    if (!sport) return;
+                    selectSport(sport.id);
+                    const dateInput = document.getElementById('booking-date');
+                    const today = new Date().toISOString().split('T')[0];
+                    dateInput.value = today;
+                    fetch('http://localhost:5000/slots?sport_id=' + sport.id)
+                        .then(res => res.json())
+                        .then(slots => {
+                            const target = (slots || []).find(s => s.start_time === start && s.end_time === end);
+                            if (target) {
+                                openPaymentModal(target.id, target.start_time, target.end_time, target.price);
+                            } else {
+                                alert('Selected time not available today. Please choose another slot.');
+                            }
+                        });
+                });
+        }
+        document.getElementById('cust-month-filter').addEventListener('change', loadUserBookings);
+    </script> 
+</body> 
+</html>

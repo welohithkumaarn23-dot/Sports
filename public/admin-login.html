@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sports Academy - Admin Login</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><circle cx='32' cy='32' r='28' fill='%23fff' stroke='%234b3fe0' stroke-width='4'/><path d='M32 4v56M4 32h56' stroke='%234b3fe0' stroke-width='4'/></svg>">
+    <style>
+        body {
+            font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+            background: linear-gradient(135deg, #e9e6f7 0%, #f7e6e6 100%);
+            margin: 0;
+            color: #222;
+        }
+        header {
+            background: #181c24;
+            color: #fff;
+            padding: 1.5rem 2rem 1rem 2rem;
+            border-radius: 0 0 2rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+        }
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: calc(100vh - 80px);
+            padding: 1rem;
+        }
+        .auth-card {
+            background: #fff;
+            border-radius: 2rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+            padding: 2.5rem 2rem 2.5rem 2rem;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        #demo-badge {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 0.5rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+        #form-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            letter-spacing: 1px;
+        }
+        .auth-card p {
+            color: #c14b2c;
+        }
+        .form-group label {
+            color: #181c24;
+            font-weight: 600;
+        }
+        .form-group input {
+            background: rgba(233,230,247,0.5);
+            color: #222;
+            border-radius: 12px;
+            border: 1px solid #c14b2c;
+            padding: 0.8rem 1rem;
+            font-size: 1rem;
+        }
+        .form-group input:focus {
+            border-color: #c14b2c;
+            outline: none;
+        }
+        #submit-btn {
+            background: linear-gradient(135deg, #4b3fe0 0%, #2563eb 100%);
+            color: #fff;
+            font-weight: 800;
+            border-radius: 999px;
+            font-size: 1.05rem;
+            padding: 1rem 1.2rem;
+            margin-top: 1rem;
+            border: none;
+            box-shadow: 0 10px 24px rgba(37,99,235,0.35);
+            letter-spacing: 0.3px;
+            transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+        }
+        #submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(37,99,235,0.45);
+            filter: brightness(1.05);
+        }
+        #submit-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 8px 20px rgba(37,99,235,0.35);
+        }
+        #submit-btn:focus-visible {
+            outline: 3px solid rgba(37,99,235,0.35);
+            outline-offset: 2px;
+        }
+        #back-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #c14b2c;
+            font-weight: 600;
+            font-family: inherit;
+            font-size: 1rem;
+        }
+        @media (max-width: 480px) {
+            .auth-card {
+                padding: 1.5rem;
+            }
+            header h1 {
+                font-size: 1.2rem;
+            }
+        }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1><i class="fas fa-user-shield"></i> Sports Academy Admin</h1>
+    </header>
+
+    <div class="auth-container">
+        <div class="card auth-card" style="border-top: 4px solid var(--danger-color);">
+            <div id="demo-badge" style="background: #e3f2fd; color: #1976d2; padding: 0.5rem; border-radius: 4px; margin-bottom: 1rem; font-size: 0.9rem; text-align: center;">
+                 <i class="fas fa-info-circle"></i> Demo Mode Active
+            </div>
+            <h2 id="form-title" style="text-align: center;">Admin Portal</h2>
+            <p style="color: var(--text-light); margin-bottom: 2rem; text-align: center;">Login to manage sports and slots</p>
+            
+            <form id="admin-auth-form" autocomplete="off">
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="email" required placeholder="Email" style="width: 100%; box-sizing: border-box;" autocomplete="off" autocapitalize="none" spellcheck="false">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="password" required placeholder="Password" style="width: 100%; box-sizing: border-box;" autocomplete="off">
+                </div>
+                <button type="submit" id="submit-btn" style="width: 100%; background-color: var(--danger-color); margin-top: 1rem;">Login as Admin</button>
+            </form>
+            
+            <p style="margin-top: 1.5rem; text-align: center; color: var(--text-light);">
+                <button id="back-btn" style="background: none; border: none; cursor: pointer; color: var(--primary-color); font-weight: 600; font-family: inherit; font-size: 1rem;">
+                    <i class="fas fa-arrow-left"></i> Back to User Login
+                </button>
+            </p>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast" class="hidden"></div>
+
+    <script src="script.js"></script>
+    <script>
+        const form = document.getElementById('admin-auth-form');
+
+        // Robust Back Button Logic
+        document.getElementById('back-btn').addEventListener('click', function(e) {
+            e.preventDefault();
+            localStorage.removeItem('user'); // Clear session
+            window.location.href = 'login.html'; // Explicit redirect
+        });
+
+        // Guard: if logged in as non-admin, clear session to allow admin login
+        window.addEventListener('DOMContentLoaded', () => {
+            const userStr = localStorage.getItem('user');
+            if (userStr) {
+                const user = JSON.parse(userStr);
+                if (user.role !== 'admin') {
+                    localStorage.removeItem('user');
+                    showToast('Switched from user session. Please enter admin credentials.', 'info');
+                } else {
+                    window.location.href = 'admin.html';
+                    return;
+                } 
+            }
+        });
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            // HTML5 validation
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            const btn = document.getElementById('submit-btn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+            btn.disabled = true;
+
+            try {
+                await login(email, password, 'admin');
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

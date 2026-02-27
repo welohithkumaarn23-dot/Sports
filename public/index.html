@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sports Academy</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><circle cx='32' cy='32' r='28' fill='%23fff' stroke='%234b3fe0' stroke-width='4'/><path d='M32 4v56M4 32h56' stroke='%234b3fe0' stroke-width='4'/></svg>">
+    <style>
+        body {
+            font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+            background: linear-gradient(135deg, #e9e6f7 0%, #f7e6e6 100%);
+            margin: 0;
+            color: #222;
+        }
+        header {
+            background: #181c24;
+            color: #fff;
+            padding: 1.5rem 2rem 1rem 2rem;
+            border-radius: 0 0 2rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+        }
+        .header-controls { display: flex; gap: 1.2rem; align-items: center; }
+        .nav-bar {
+            background: #fff;
+            border-radius: 1.5rem;
+            margin: 1.5rem auto 2rem auto;
+            max-width: 900px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+            padding: 0.5rem 2rem;
+        }
+        .nav-inner { display: flex; gap: 2rem; justify-content: center; }
+        .nav-link {
+            color: #222;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            padding: 0.7rem 1.2rem;
+            border-radius: 999px;
+            transition: background 0.2s, color 0.2s;
+        }
+        .nav-link.active, .nav-link:hover {
+            background: #f2e9e1;
+            color: #c14b2c;
+        }
+        .hero-modern {
+            min-height: 70vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: left;
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+            border-radius: 2.5rem;
+            background: linear-gradient(120deg, #1a1d2b 60%, #c14b2c 100%);
+            margin: 2rem auto 2.5rem auto;
+            max-width: 900px;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+        }
+        .hero-img {
+            flex: 1.2;
+            min-width: 0;
+            background: url('img/tennis.avif') center/cover no-repeat;
+            border-radius: 2.5rem 0 0 2.5rem;
+            min-height: 350px;
+            position: relative;
+        }
+        .hero-info {
+            flex: 1.1;
+            padding: 3.5rem 2.5rem;
+            z-index: 2;
+            position: relative;
+            animation: heroTextSlideIn 1.2s cubic-bezier(.77,0,.18,1) both;
+        }
+                @keyframes heroTextSlideIn {
+                    0% { opacity: 0; transform: translateX(80px) skewX(4deg) scale(0.98); filter: blur(8px); }
+                    60% { opacity: 0.7; transform: translateX(-10px) skewX(-2deg) scale(1.04); filter: blur(2px); }
+                    100% { opacity: 1; transform: translateX(0) skewX(0) scale(1); filter: blur(0); }
+                }
+        .hero-title {
+            font-size: 2.7rem;
+            font-weight: 800;
+            margin-bottom: 1.1rem;
+            letter-spacing: 0.5px;
+        }
+        .hero-desc {
+            font-size: 1.15rem;
+            color: #f7d9c4;
+            margin-bottom: 2.2rem;
+        }
+        .hero-actions {
+            display: flex;
+            gap: 1.2rem;
+        }
+        .cta-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(90deg,#c14b2c 60%,#f7d9c4 100%);
+            color: #fff;
+            padding: 1.1rem 2.2rem;
+            border-radius: 999px;
+            text-decoration: none;
+            font-weight: 800;
+            letter-spacing: 0.2px;
+            font-size: 1.1rem;
+            box-shadow: 0 10px 24px rgba(0,0,0,0.18);
+            transition: transform 0.2s, box-shadow 0.2s, filter 0.2s;
+        }
+        .cta-primary:hover { transform: translateY(-2px) scale(1.04); box-shadow: 0 14px 30px rgba(0,0,0,0.22); filter: brightness(1.08); }
+        .cta-outline {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.18);
+            border: 2px solid #fff;
+            color: #fff;
+            padding: 1.1rem 2.2rem;
+            border-radius: 999px;
+            text-decoration: none;
+            font-weight: 800;
+            letter-spacing: 0.2px;
+            font-size: 1.1rem;
+            backdrop-filter: blur(6px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.13);
+            transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+        }
+        .cta-outline:hover { transform: translateY(-2px); background: rgba(255,255,255,0.28); box-shadow: 0 10px 24px rgba(0,0,0,0.18); }
+        .hero-points {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+        }
+        .point {
+            position: absolute;
+            width: 38px; height: 38px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.13);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: #c14b2c;
+            font-weight: bold;
+            border: 3px solid #f7d9c4;
+        }
+        .point1 { top: 18%; left: 12%; }
+        .point2 { top: 60%; left: 22%; }
+        .point3 { top: 35%; left: 70%; }
+        .point4 { top: 75%; left: 80%; }
+        .features {
+            padding: 3rem 0 2rem 0;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .features-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            color: #c14b2c;
+            text-align: center;
+        }
+        .feature-cards {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .feature-card {
+            background: #fff;
+            border-radius: 2rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+            padding: 2.2rem 2rem 1.7rem 2rem;
+            text-align: center;
+            flex: 1 1 260px;
+            min-width: 220px;
+            max-width: 320px;
+        }
+        .feature-icon {
+            font-size: 2.5rem;
+            color: #c14b2c;
+            margin-bottom: 1rem;
+        }
+        .feature-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #181c24;
+        }
+        .feature-desc {
+            color: #4b5563;
+            font-size: 1rem;
+        }
+        @media (max-width: 900px) {
+            .hero-modern { flex-direction: column; border-radius: 2.5rem; }
+            .hero-img { border-radius: 2.5rem 2.5rem 0 0; min-height: 220px; }
+            .hero-info { padding: 2.2rem 1.2rem; }
+            .feature-cards { flex-direction: column; gap: 1.5rem; }
+        }
+        @media (max-width: 767px) {
+            .nav-bar {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1><i class="fas fa-running"></i> DUSKYBOII Sport Academy</h1>
+        <div class="header-controls">
+            <a id="main-auth-btn" href="login.html" class="cta-btn" style="padding: 0.5rem 1.5rem; font-size: 1rem; background: orange; color: #fff; font-weight: 700;">Login / Register</a>
+            <button class="nav-toggle" aria-label="Toggle navigation"><i class="fas fa-bars"></i></button>
+        </div>
+    </header>
+    <nav class="nav-bar">
+        <div class="nav-inner">
+            <a class="nav-link active" href="index.html">Home</a>
+            <a class="nav-link" href="turfs.html">Explore</a>
+            <a class="nav-link" href="tournaments.html">Tournaments</a>
+            <a class="nav-link" href="contact.html">Contact</a>
+            <a class="nav-link" href="login.html">Login</a>
+        </div>
+    </nav>
+    </script>
+
+    <div class="hero-modern" id="home" style="position:relative;overflow:hidden;background:linear-gradient(135deg,#1a1d2b 60%,#4b3fe0 100%);">
+        <div class="hero-visual">
+            <img src="img/tennis.avif" alt="Sports Academy" class="hero-main-img" style="width:340px;height:300px;border-radius:2rem;box-shadow:0 8px 32px rgba(0,0,0,0.18);animation:heroImgPop 1.2s both;">
+            <div class="hero-anim-icons" style="margin-top:40%;">
+                <i class="fas fa-futbol hero-icon" title="Football"></i>
+                <i class="fas fa-table-tennis hero-icon" title="Table Tennis"></i>
+                <i class="fas fa-basketball-ball hero-icon" title="Basketball"></i>
+                <i class="fas fa-running hero-icon" title="Athletics"></i>
+                <i class="fas fa-user-tie hero-icon" title="Coaching"></i>
+            </div>
+        </div>
+        <div class="hero-info" style="position:relative;z-index:2;max-width:600px;text-align:left;margin-left: 50%;">
+            <div style="background:rgba(24,28,36,0.82); border-radius:2rem; padding:2.2rem 1.5rem 2rem 1.5rem; box-shadow:0 4px 32px rgba(0,0,0,0.18); z-index:3; position:relative;">
+                <div class="hero-title" style="font-size:3rem;animation:fadeInDown 1.2s cubic-bezier(.77,0,.18,1) both; color:#fff;">DUSKYBOII Sport Academy</div>
+                <div class="hero-desc" style="animation:fadeInUp 1.2s 0.3s cubic-bezier(.77,0,.18,1) both; color:#f7d9c4;">Where passion meets performance. Train with the best, compete at every level, and become part of a winning legacy. <span style="color:#4b3fe0;font-weight:600;">#DuskyBoiiAthlete</span></div>
+                <div class="hero-actions" style="justify-content:center;margin-top:2.2rem;">
+                    <a id="hero-auth-btn" href="login.html" class="cta-primary animated-cta"><i class="fas fa-user"></i> Login / Register</a>
+                    <a href="contact.html" class="cta-outline animated-cta"><i class="fas fa-envelope"></i> Contact Us</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+    // Hero section auth button logic
+    (function() {
+        var heroAuthBtn = document.getElementById('hero-auth-btn');
+        var user = localStorage.getItem('user');
+        if (heroAuthBtn) {
+            if (user) {
+                heroAuthBtn.textContent = 'Logout';
+                heroAuthBtn.href = '#';
+                heroAuthBtn.onclick = function(e) { e.preventDefault(); localStorage.removeItem('user'); window.location.reload(); };
+                heroAuthBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Logout';
+            } else {
+                heroAuthBtn.textContent = 'Login / Register';
+                heroAuthBtn.href = 'login.html';
+                heroAuthBtn.onclick = null;
+                heroAuthBtn.innerHTML = '<i class="fas fa-user"></i> Login / Register';
+            }
+        }
+    })();
+    </script>
+    <style>
+        .hero-visual {
+            position: absolute;
+            left: 5%; top: 10%;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .hero-main-img {
+            animation: heroImgPop 1.2s both;
+        }
+        .hero-anim-icons {
+            display: flex;
+            gap: 18px;
+            margin-top: 1.2rem;
+        }
+        .hero-icon {
+            font-size: 2.2rem;
+            color: #fff;
+            background: linear-gradient(135deg,#4b3fe0 60%,#c14b2c 100%);
+            border-radius: 50%;
+            padding: 0.5rem;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.13);
+            animation: iconBounce 1.8s infinite alternate;
+        }
+        .hero-icon:nth-child(2) { color: #e6ff5e; animation-delay: 0.3s; }
+        .hero-icon:nth-child(3) { color: #ffb347; animation-delay: 0.6s; }
+        .hero-icon:nth-child(4) { color: #c14b2c; animation-delay: 0.9s; }
+        .hero-icon:nth-child(5) { color: #4b3fe0; animation-delay: 1.2s; }
+        @keyframes heroImgPop {
+            0% { opacity:0; transform:scale(0.8); }
+            100% { opacity:1; transform:scale(1); }
+        }
+        @keyframes iconBounce {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-18px); }
+        }
+    </style>
+    <style>
+        .hero-anim-balls {
+            position: absolute;
+            left: 0; top: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .ball {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.92;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.13);
+            animation-timing-function: cubic-bezier(.77,0,.18,1);
+        }
+        .ball-football {
+            width: 54px; height: 54px;
+            background: radial-gradient(circle at 60% 40%, #fff 70%, #c14b2c 100%);
+            left: 12%; top: 60%;
+            animation: floatBall1 5.5s infinite alternate;
+        }
+        .ball-tennis {
+            width: 36px; height: 36px;
+            background: radial-gradient(circle at 40% 60%, #e6ff5e 70%, #b2c14b 100%);
+            left: 80%; top: 30%;
+            animation: floatBall2 4.2s infinite alternate;
+        }
+        .ball-basket {
+            width: 44px; height: 44px;
+            background: radial-gradient(circle at 50% 50%, #ffb347 70%, #c14b2c 100%);
+            left: 60%; top: 80%;
+            animation: floatBall3 6.1s infinite alternate;
+        }
+        @keyframes floatBall1 {
+            0% { transform: translateY(0) scale(1); }
+            100% { transform: translateY(-40px) scale(1.08); }
+        }
+        @keyframes floatBall2 {
+            0% { transform: translateY(0) scale(1); }
+            100% { transform: translateY(-30px) scale(1.12); }
+        }
+        @keyframes floatBall3 {
+            0% { transform: translateY(0) scale(1); }
+            100% { transform: translateY(-50px) scale(1.05); }
+        }
+        @keyframes fadeInDown {
+            0% { opacity:0; transform:translateY(-40px); }
+            100% { opacity:1; transform:translateY(0); }
+        }
+        @keyframes fadeInUp {
+            0% { opacity:0; transform:translateY(40px); }
+            100% { opacity:1; transform:translateY(0); }
+        }
+        .animated-cta {
+            animation: fadeInUp 1.2s 0.6s cubic-bezier(.77,0,.18,1) both;
+        }
+    </style>
+
+    
+
+    <div class="features">
+        <div class="features-title">Why Choose Our Academy?</div>
+        <div class="feature-cards">
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-user-tie"></i></div>
+                <div class="feature-title">Elite Coaches</div>
+                <div class="feature-desc">Certified, passionate trainers dedicated to every athlete’s growth.</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-dumbbell"></i></div>
+                <div class="feature-title">Modern Facilities</div>
+                <div class="feature-desc">State-of-the-art equipment and safe, inspiring environments.</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-futbol"></i></div>
+                <div class="feature-title">Multiple Sports</div>
+                <div class="feature-desc">Football, tennis, badminton, chess, and more for all ages.</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
+                <div class="feature-title">Safe & Secure</div>
+                <div class="feature-desc">A nurturing, secure space for children and teens to thrive.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" id="gallery">
+        <h2 class="section-title">Gallery</h2>
+        <div class="gallery-grid">
+            <div class="gallery-item" style="background-image:url('https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&w=800&q=80')"></div>
+            <div class="gallery-item" style="background-image:url('https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80')"></div>
+            <div class="gallery-item" style="background-image:url('https://images.unsplash.com/photo-1511537190424-bbbab87ac5eb?auto=format&fit=crop&w=800&q=80')"></div>
+            <div class="gallery-item" style="background-image:url('https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=800&q=80')"></div>
+            <div class="gallery-item" style="background-image:url('https://images.unsplash.com/photo-1546519638-68e10949835e?auto=format&fit=crop&w=800&q=80')"></div>
+            <div class="gallery-item" style="background-image:url('https://images.unsplash.com/photo-1519311965067-3b83b1f49036?auto=format&fit=crop&w=800&q=80')"></div>
+        </div>
+    </div>
+
+    <div class="container" id="insights">
+        <h2 class="section-title">Insights & Inspiration</h2>
+        <div class="grid">
+            <div class="card">
+                <h3 style="margin-top:0;color:var(--primary-color)">Winning Mindset</h3>
+                <p>Discipline and consistency shape tomorrow’s champions.</p>
+            </div>
+            <div class="card">
+                <h3 style="margin-top:0;color:var(--primary-color)">Precision Training</h3>
+                <p>Age-appropriate formats and match exposure drive progress.</p>
+            </div>
+            <div class="card">
+                <h3 style="margin-top:0;color:var(--primary-color)">Parents App</h3>
+                <p>Track progress, get match alerts, and never miss a moment.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" id="faq">
+        <h2 class="section-title">FAQ</h2>
+        <div class="faq-list">
+            <div class="faq-item">
+                <div class="faq-question">Which sports do you coach?</div>
+                <div class="faq-answer">Football, tennis, table tennis, chess, badminton, and more.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">What ages can join?</div>
+                <div class="faq-answer">Children ages 3 to 18 with tailored programs.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">How do I book slots?</div>
+                <div class="faq-answer">Create an account and book via the dashboard.</div>
+            </div>
+        </div>
+    </div>
+
+    <footer style="background: var(--dark-bg); color: white; text-align: center; padding: 2rem; margin-top: 2rem;">
+        <p>&copy; 2024 Sports Academy. All rights reserved.</p>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        document.querySelectorAll('.faq-question').forEach(function(q){
+            q.addEventListener('click',function(){
+                var a=q.nextElementSibling;
+                a.style.display=a.style.display==='block'?'none':'block';
+            });
+        });
+    </script>
+</body>
+</html>

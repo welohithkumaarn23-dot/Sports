@@ -1,0 +1,19 @@
+{
+  "name": "sports-academy-auth",
+  "version": "1.0.0",
+  "description": "Login/Signup system for Sports Academy",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.6",
+    "express": "^4.22.1",
+    "mysql2": "^3.17.1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}

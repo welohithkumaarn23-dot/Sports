@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sports Academy - Login</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><circle cx='32' cy='32' r='28' fill='%23fff' stroke='%234b3fe0' stroke-width='4'/><path d='M32 4v56M4 32h56' stroke='%234b3fe0' stroke-width='4'/></svg>">
+    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+    <style>
+        .invalid {
+            border: 1px solid #ff4d4f !important;
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/200/svg' viewBox='0 0 24 24'><path fill='%23ff4d4f' d='M12 2a10 10 0 100 20 10 10 0 000-20zm4.24 13.66L13.66 12l2.58-3.66-1.32-1.32L12 10.34 8.76 7.02 7.44 8.34 10.02 12l-2.58 3.66 1.32 1.32L12 13.66l3.24 3.32 1.32-1.32z'/></svg>");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 20px 20px;
+        }
+        .btn-strong { display:inline-flex; align-items:center; justify-content:center; gap:8px; width:100%; padding:1rem 1.2rem; border-radius:999px; background: linear-gradient(135deg, #4b3fe0 0%, #2563eb 100%); color:#fff; font-weight:800; font-size:1.05rem; letter-spacing:0.3px; box-shadow: 0 10px 24px rgba(37,99,235,0.35); border:none; transition: transform .15s ease, box-shadow .15s ease, filter .15s ease; }
+        .btn-strong:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(37,99,235,0.45); filter: brightness(1.05); }
+        .btn-strong:active { transform: translateY(0); box-shadow: 0 8px 20px rgba(37,99,235,0.35); }
+        .btn-strong:focus-visible { outline: 3px solid rgba(37,99,235,0.35); outline-offset: 2px; }
+        .btn-ghost { display:inline-flex; align-items:center; justify-content:center; gap:8px; width:100%; padding:1rem 1.2rem; border-radius:999px; background: #10b981; color:#fff; font-weight:800; font-size:1.02rem; border:none; box-shadow: 0 8px 20px rgba(16,185,129,0.35); transition: transform .15s ease, box-shadow .15s ease, filter .15s ease; }
+        .btn-ghost:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(16,185,129,0.45); filter: brightness(1.06); }
+        .btn-ghost:active { transform: translateY(0); box-shadow: 0 8px 20px rgba(16,185,129,0.35); }
+        .btn-ghost:focus-visible { outline: 3px solid rgba(16,185,129,0.35); outline-offset: 2px; }
+    </style>
+    <style>
+        .tab-row { display:flex; gap:10px; margin-bottom:14px; }
+        .tab-btn { flex:1; padding:10px 14px; border-radius:999px; border:2px solid #c7d2fe; background:#eef2ff; color:#1f2937; cursor:pointer; font-weight:700; transition: all .15s ease; }
+        .tab-btn:hover { filter: brightness(1.03); }
+        .tab-btn.active { background: linear-gradient(135deg, #4b3fe0 0%, #2563eb 100%); color:#fff; border-color: transparent; box-shadow: 0 8px 20px rgba(37,99,235,0.35); }
+        .hidden { display:none; }
+        .input-with-icon { position: relative; }
+        .toggle-eye { position:absolute; right:12px; top:50%; transform:translateY(-50%); background:transparent; border:none; color: var(--text-light); cursor:pointer; font-size:1rem; padding:2px; }
+        .toggle-eye:hover { color: var(--primary-color); }
+        .form-group label { color:#0f172a; font-weight:700; }
+        .form-group input { padding:0.8rem 1rem; border-radius:12px; border:1.5px solid #cbd5e1; background:#ffffff; color:#0f172a; font-size:1rem; caret-color:#2563eb; }
+        .form-group input::placeholder { color:#64748b; opacity:1; }
+        .form-group input:focus { outline:3px solid #93c5fd; border-color:#60a5fa; background:#ffffff; box-shadow: 0 0 0 4px rgba(147,197,253,0.25); }
+    </style>
+    <style>
+        @keyframes loginPop {
+            0% { opacity: 0; transform: scale(0.92) translateY(60px) skewY(4deg) rotateZ(-2deg); filter: blur(8px); }
+            60% { opacity: 0.7; transform: scale(1.04) translateY(-10px) skewY(-2deg) rotateZ(1deg); filter: blur(2px); }
+            100% { opacity: 1; transform: scale(1) translateY(0) skewY(0) rotateZ(0); filter: blur(0); }
+        }
+    </style>
+</head>
+<body style="background: linear-gradient(135deg, #e9e6f7 0%, #f7e6e6 100%); color: #222; font-family: 'Segoe UI', 'Roboto', Arial, sans-serif; margin: 0;">
+    <header style="background: #181c24; color: #fff; padding: 1.5rem 2rem 1rem 2rem; border-radius: 0 0 2rem 2rem; display: flex; align-items: center; justify-content: space-between;">
+        <h1 style="font-size: 2rem; font-weight: 700; letter-spacing: 1px; margin: 0; display: flex; align-items: center; gap: 0.7rem;"><i class="fas fa-running"></i> Sports Academy</h1>
+        <div class="header-controls" style="display: flex; gap: 1.2rem; align-items: center;">
+            <a href="index.html" class="cta-btn" style="padding: 0.5rem 1.5rem; font-size: 1rem;">Home</a>
+        </div>
+    </header>
+    <nav class="nav-bar">
+        <div class="nav-inner">
+            <a class="nav-link" href="index.html">Home</a>
+            <a class="nav-link" href="turfs.html">Explore</a>
+            <a class="nav-link" href="tournaments.html">Tournaments</a>
+            <a class="nav-link" href="contact.html">Contact</a>
+            <a class="nav-link active" href="login.html">Login</a>
+        </div>
+    </nav>
+    <div class="auth-container">
+        <div class="card auth-card" style="max-width:520px; animation: loginPop 1.2s cubic-bezier(.77,0,.18,1) both;">
+            <div class="tab-row">
+                <button id="tab-signin" class="tab-btn active">Sign In</button>
+                <button id="tab-signup" class="tab-btn">Sign Up</button>
+            </div>
+            <div id="signin" class="signin">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="li-email" placeholder="name@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <div class="input-with-icon">
+                        <input type="password" id="li-pass" placeholder="Enter password" required>
+                        <button type="button" id="toggle-pass" class="toggle-eye"><i class="fas fa-eye"></i></button>
+                    </div>
+                </div>
+                <button id="signin-btn" class="btn-strong"><i class="fas fa-sign-in-alt"></i> Sign In</button>
+            </div>
+            <div id="signup" class="signup hidden">
+                <div class="form-group">
+                    <label>Your Name</label>
+                    <input type="text" id="su-name" placeholder="Your Name" required>
+                </div>
+                <div class="form-group">
+                    <label>Email Address (Gmail)</label>
+                    <input type="email" id="su-email" placeholder="Enter Gmail ID" required>
+                </div>
+                <button id="su-send" class="btn-strong"><i class="fas fa-paper-plane"></i> Send OTP</button>
+                <div id="su-otp-sec" class="hidden">
+                    <div class="form-group" style="margin-top:1rem;">
+                        <label>Enter OTP</label>
+                        <input type="text" id="su-otp" placeholder="Enter OTP">
+                    </div>
+                    <button id="su-verify" class="btn-ghost"><i class="fas fa-check-circle"></i> Verify OTP</button>
+                </div>
+                <div id="su-setpass" class="hidden" style="margin-top:1rem;">
+                    <div class="form-group">
+                        <label>Username (auto-filled)</label>
+                        <input type="text" id="su-username" placeholder="Username" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Set Password</label>
+                        <input type="password" id="su-password" placeholder="Password">
+                    </div>
+                    <button id="su-complete" class="btn-strong"><i class="fas fa-user-plus"></i> Complete Signup</button>
+                </div>
+            </div>
+            <p style="margin-top: 1rem; text-align: center;">
+                <a href="admin-login.html" style="color: var(--text-light); font-size: 0.9rem; text-decoration: none;"><i class="fas fa-user-shield"></i> Admin Login</a>
+            </p>
+        </div>
+    </div>
+    </div>
+    <div id="toast" class="hidden" style="position:fixed; left:50%; transform:translateX(-50%); bottom:24px; background:#1e293b; color:#fff; padding:12px 16px; border-radius:8px; box-shadow:0 8px 24px rgba(0,0,0,0.2); font-size:0.95rem;"></div>
+    </div>
+    <script src="script.js"></script>
+    <script>
+        if (window.emailjs && typeof emailjs.init === 'function') {
+            emailjs.init("dTYe8UWVpk_EVZ0B8");
+        }
+        const tabSignin = document.getElementById('tab-signin');
+        const tabSignup = document.getElementById('tab-signup');
+        const signin = document.getElementById('signin');
+        const signup = document.getElementById('signup');
+        tabSignin.addEventListener('click', () => { tabSignin.classList.add('active'); tabSignup.classList.remove('active'); signin.classList.remove('hidden'); signup.classList.add('hidden'); });
+        tabSignup.addEventListener('click', () => { tabSignup.classList.add('active'); tabSignin.classList.remove('active'); signup.classList.remove('hidden'); signin.classList.add('hidden'); });
+        const liEmail = document.getElementById('li-email');
+        const liPass = document.getElementById('li-pass');
+        const signinBtn = document.getElementById('signin-btn');
+        const togglePass = document.getElementById('toggle-pass');
+        const toastEl = document.getElementById('toast');
+        function showToast(msg) {
+            if (!toastEl) return;
+            toastEl.textContent = msg;
+            toastEl.classList.remove('hidden');
+            clearTimeout(window.__toastTimer);
+            window.__toastTimer = setTimeout(() => { toastEl.classList.add('hidden'); }, 2200);
+        }
+        liEmail.addEventListener('keydown', (e) => {
+            if (e.key === 'Tab' && !liEmail.value.trim()) {
+                e.preventDefault();
+                liEmail.classList.add('invalid');
+                liEmail.focus();
+                showToast('Enter email');
+            }
+        });
+        liEmail.addEventListener('input', () => { liEmail.classList.remove('invalid'); });
+        liPass.addEventListener('input', () => { liPass.classList.remove('invalid'); });
+        togglePass.addEventListener('click', () => {
+            const isPass = liPass.getAttribute('type') === 'password';
+            liPass.setAttribute('type', isPass ? 'text' : 'password');
+            togglePass.innerHTML = isPass ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
+        });
+       signinBtn.addEventListener('click', async () => {
+
+    const response = await fetch("http://localhost:5000/login", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            email: liEmail.value.trim(),
+            password: liPass.value.trim()
+        })
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+        localStorage.setItem("user", JSON.stringify(data));
+        window.location.href = "dashboard.html";
+    } else {
+        alert(data.error);
+    }
+});
+
+        const suEmail = document.getElementById('su-email');
+        const suName = document.getElementById('su-name');
+        const suSend = document.getElementById('su-send');
+        const suOtpSec = document.getElementById('su-otp-sec');
+        const suOtp = document.getElementById('su-otp');
+        const suVerify = document.getElementById('su-verify');
+        const suSetpass = document.getElementById('su-setpass');
+        const suUsername = document.getElementById('su-username');
+        const suPassword = document.getElementById('su-password');
+        const suComplete = document.getElementById('su-complete');
+        let generatedOtp = "";
+        suSend.addEventListener('click', async () => {
+            if (!suName.value.trim() || !suEmail.value.trim()) { alert('Enter name and email'); return; }
+            generatedOtp = String(Math.floor(100000 + Math.random()*900000));
+            try {
+                await emailjs.send("service_abu7s08", "template_mas6y1g", {
+                    email: suEmail.value.trim(),
+                    otp: generatedOtp,
+                    name: suName.value.trim()
+                });
+                suOtpSec.classList.remove('hidden');
+                showToast('OTP sent to ' + suEmail.value.trim());
+            } catch (e) {
+                alert('Failed to send OTP');
+            }
+        });
+        suVerify.addEventListener('click', async () => {
+            if (!suOtp.value.trim()) { alert('Enter OTP'); return; }
+            if (suOtp.value.trim() === generatedOtp) {
+                suSetpass.classList.remove('hidden');
+                suUsername.value = suEmail.value.trim();
+                suUsername.setAttribute('readonly', 'readonly');
+                showToast('OTP verified');
+            } else {
+                alert('Invalid OTP');
+            }
+        });
+suComplete.addEventListener('click', async () => {
+    if (!suPassword.value.trim()) {
+        alert('Enter password');
+        return;
+    }
+
+    const response = await fetch("http://localhost:5000/signup", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            name: suName.value.trim(),
+            email: suEmail.value.trim(),
+            password: suPassword.value.trim()
+        })
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+        alert("Signup successful! Please login.");
+        tabSignin.click();
+    } else {
+        alert(data.error);
+    }
+});
+
+    </script>
+</body>
+</html>

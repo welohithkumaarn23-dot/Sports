@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sports Academy - Tournaments</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><circle cx='32' cy='32' r='28' fill='%23fff' stroke='%234b3fe0' stroke-width='4'/><path d='M32 4v56M4 32h56' stroke='%234b3fe0' stroke-width='4'/></svg>">
+    <style>
+        .tournament-card { padding: 1rem; }
+        .tournament-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        @media (max-width: 900px) { .tournament-grid { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 600px) { .tournament-grid { grid-template-columns: 1fr; } }
+        .schedule-item { display:flex; justify-content:space-between; border:1px solid #eee; border-radius:10px; padding:0.75rem; margin-bottom:8px; background:#fff; }
+    </style>
+</head>
+<body style="background: linear-gradient(135deg, #e9e6f7 0%, #f7e6e6 100%); color: #222; font-family: 'Segoe UI', 'Roboto', Arial, sans-serif; margin: 0;">
+    <header style="background: #181c24; color: #fff; padding: 1.5rem 2rem 1rem 2rem; border-radius: 0 0 2rem 2rem; display: flex; align-items: center; justify-content: space-between;">
+        <h1 style="font-size: 2rem; font-weight: 700; letter-spacing: 1px; margin: 0; display: flex; align-items: center; gap: 0.7rem;"><i class="fas fa-trophy"></i> Tournaments</h1>
+        <div class="header-controls" style="display: flex; gap: 1.2rem; align-items: center;">
+            <a id="main-auth-btn" href="login.html" class="cta-btn" style="padding: 0.5rem 1.5rem; font-size: 1rem; background: orange; color: #fff; font-weight: 700;">Login / Register</a>
+        </div>
+    </header>
+    <nav class="nav-bar">
+        <div class="nav-inner" id="main-nav-inner"></div>
+    </nav>
+    <script>
+    // Dynamic nav bar and auth button
+    (function() {
+        const nav = document.getElementById('main-nav-inner');
+        const authBtn = document.getElementById('main-auth-btn');
+        const user = localStorage.getItem('user');
+        if (nav) {
+            if (user) {
+                nav.innerHTML = `
+                    <a class="nav-link" href="index.html">Home</a>
+                    <a class="nav-link" href="turfs.html">Explore</a>
+                    <a class="nav-link active" href="tournaments.html">Tournaments</a>
+                    <a class="nav-link" href="contact.html">Contact</a>
+                    <a class="nav-link" href="dashboard.html">Dashboard</a>
+                `;
+            } else {
+                nav.innerHTML = `
+                    <a class="nav-link" href="index.html">Home</a>
+                    <a class="nav-link" href="turfs.html">Explore</a>
+                    <a class="nav-link active" href="tournaments.html">Tournaments</a>
+                    <a class="nav-link" href="contact.html">Contact</a>
+                    <a class="nav-link" href="login.html">Login</a>
+                `;
+            }
+        }
+        if (authBtn) {
+            if (user) {
+                authBtn.textContent = 'Logout';
+                authBtn.href = '#';
+                authBtn.onclick = function(e) { e.preventDefault(); localStorage.removeItem('user'); window.location.reload(); };
+            } else {
+                authBtn.textContent = 'Login / Register';
+                authBtn.href = 'login.html';
+                authBtn.onclick = null;
+            }
+        }
+    })();
+    </script>
+    </nav>
+
+
+    <div class="container" style="animation: tournamentPop 1.2s cubic-bezier(.77,0,.18,1) both;">
+        <h2 class="section-title">Upcoming Tournaments</h2>
+        <div id="tournaments-list" class="tournament-grid"></div>
+    </div>
+
+        <style>
+        @keyframes tournamentPop {
+            0% { opacity: 0; transform: scale(0.92) translateY(60px) skewY(4deg) rotateZ(-2deg); filter: blur(8px); }
+            60% { opacity: 0.7; transform: scale(1.04) translateY(-10px) skewY(-2deg) rotateZ(1deg); filter: blur(2px); }
+            100% { opacity: 1; transform: scale(1) translateY(0) skewY(0) rotateZ(0); filter: blur(0); }
+        }
+        </style>
+
+    <div class="container">
+        <div id="tournament-detail" class="card" style="display:none;">
+            <h3 id="t-name" style="margin-top:0; color: var(--primary-color);"></h3>
+            <p id="t-meta" style="color:var(--text-light);"></p>
+            <img id="t-image" src="" alt="" style="width:100%;max-height:280px;object-fit:cover;border-radius:12px;display:none;margin:10px 0;">
+            <p id="t-desc" style="color:var(--text-color);"></p>
+            <p id="t-deadline" class="badge badge-pending" style="display:none;"></p>
+            <h4 style="margin-top:1rem;">Schedule</h4>
+            <div id="t-schedule"></div>
+            <h4 style="margin-top:1rem;">Register Team / Player</h4>
+            <form id="t-register-form" class="tournament-card">
+                <div class="form-group">
+                    <label>Team Name / Player Name</label>
+                    <input type="text" id="reg-team" required placeholder="e.g. Falcons FC or John Doe" />
+                </div>
+                <div class="form-group">
+                    <label>Players (comma-separated)</label>
+                    <input type="text" id="reg-players" placeholder="Alice,Bob,Charlie" />
+                </div>
+                <div class="form-group">
+                    <label>Contact (mobile/email)</label>
+                    <input type="text" id="reg-contact" placeholder="+91XXXXXXXXXX or john@example.com" />
+                </div>
+                <button type="submit" style="width:100%;">Register</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        let currentTournamentId = null;
+        async function loadTournaments() {
+            const list = document.getElementById('tournaments-list');
+            const data = await fetchTournaments();
+            list.innerHTML = (data || []).map(t => `
+                <div class="card tournament-card">
+                    <img src="${t.image_url || 'https://images.unsplash.com/photo-1512412046876-cd7bcb0ca1ea?auto=format&fit=crop&w=1200&q=80'}" alt="${t.name}" style="width:100%;max-height:180px;object-fit:cover;border-radius:12px;margin-bottom:8px;">
+                    <h3 style="margin-top:0;">${t.name}</h3>
+                    <p style="color:var(--text-light); margin:6px 0;">${t.sport_name} • ${t.location || 'Venue TBA'}</p>
+                    <p style="color:var(--text-light);">${t.start_date} → ${t.end_date}</p>
+                    ${t.registration_deadline ? `<p class="badge badge-pending">Register before ${t.registration_deadline}</p>` : ''}
+                    ${t.description ? `<p style="margin-top:8px;">${t.description}</p>` : ''}
+                    <a class="btn btn-primary" href="#" onclick="viewTournament(${t.id}); return false;">View Details</a>
+                </div>
+            `).join('');
+        }
+        async function viewTournament(id) {
+            currentTournamentId = id;
+            const detail = document.getElementById('tournament-detail');
+            detail.style.display = 'block';
+            const data = await fetchTournaments();
+            const t = (data || []).find(x => x.id === id);
+            if (!t) return;
+            document.getElementById('t-name').textContent = t.name;
+            document.getElementById('t-meta').textContent = `${t.sport_name} • ${t.location || 'Venue TBA'} • ${t.start_date} → ${t.end_date}`;
+            const img = document.getElementById('t-image');
+            img.src = t.image_url || 'https://images.unsplash.com/photo-1512412046876-cd7bcb0ca1ea?auto=format&fit=crop&w=1200&q=80';
+            img.style.display = 'block';
+            document.getElementById('t-desc').textContent = t.description || '';
+            const dl = document.getElementById('t-deadline');
+            if (t.registration_deadline) { dl.textContent = `Register before ${t.registration_deadline}`; dl.style.display = 'inline-block'; } else { dl.style.display = 'none'; }
+            const sched = await fetchTournamentSlots(id);
+            const el = document.getElementById('t-schedule');
+            el.innerHTML = (sched || []).map(s => `
+                <div class="schedule-item">
+                    <span><i class="far fa-calendar-alt"></i> ${s.match_date}</span>
+                    <span><i class="far fa-clock"></i> ${s.start_time.slice(0,5)} - ${s.end_time.slice(0,5)}</span>
+                    <span>${s.title || ''}</span>
+                </div>
+            `).join('');
+            window.scrollTo({ top: detail.offsetTop - 80, behavior: 'smooth' });
+        }
+        document.getElementById('t-register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!currentTournamentId) return;
+            const team = document.getElementById('reg-team').value.trim();
+            const players = document.getElementById('reg-players').value.trim();
+            const contact = document.getElementById('reg-contact').value.trim();
+            const ok = await registerTournamentParticipant({
+                tournament_id: currentTournamentId,
+                team_name: team,
+                players,
+                contact
+            });
+            if (ok) {
+                e.target.reset();
+            }
+        });
+        loadTournaments();
+    </script>
+</body>
+</html>
